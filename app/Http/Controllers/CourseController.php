@@ -3,21 +3,25 @@
 namespace App\Http\Controllers;
 
 use Validator;
-use App\Course;
 use App\User;
+use App\Course;
+use App\CourseStudent;
 use Illuminate\Http\Request;
 
 class CourseController extends Controller
 {
     public function __construct() {
-        $this->middleware(['jwt.auth', 'params.instructor:<User>'], 
-        ['except' => ['instructors']]);
-        
+        $this->middleware('jwt.auth');
+        $this->middleware('params.rol:instructor,instructor',
+            ['except' => ['instructors', 'enrollment']]);
         $this->middleware('roles.go:instructor')
-        ->only(['store','update','destroy']);
-
+            ->only(['store','update','destroy']);
         $this->middleware('instructor.course:<User>,<Course>')
-        ->only(['show','update','destroy']);
+            ->only(['show','update','destroy']);
+
+        $this->middleware('roles.go:estudiante')
+            ->only(['enrollment']);
+        $this->middleware('params.rol:student,estudiante')->only(['enrollment']);
     }
 
     /**
@@ -90,6 +94,7 @@ class CourseController extends Controller
     public function show(User $instructor, Course $course)
     {
         $course->instructor;
+        $course->students;
         return response()->json($course);
     }
 
@@ -156,5 +161,29 @@ class CourseController extends Controller
             $instructor->rol;
         }
         return response()->json($instructors);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function enrollment(Course $course, User $student)
+    {
+        $course_student = [
+            'course_id'=> $course->id,
+            'student_id'=> $student->id
+        ];
+
+        try {
+            CourseStudent::create($course_student);
+        } catch (QueryException $e){
+            return response()->json(['error'=>$e->errorInfo], 400);
+        }
+        
+        $course_student['course']=$course;
+        $course_student['student']=$student;
+        return response()->json($course_student);
     }
 }

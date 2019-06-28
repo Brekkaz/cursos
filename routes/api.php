@@ -20,3 +20,4 @@ Route::put('login', 'UserController@refresh')->name('users.refresh');
 
 Route::apiResource('instructors.courses', 'CourseController');
 Route::get('instructors', 'CourseController@instructors')->name('courses.instructors');
+Route::post('enrollment/courses/{course}/students/{student}', 'CourseController@enrollment')->name('courses.enrollment');

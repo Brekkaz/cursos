@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use App\User;
 
-class ParamsInstructorMiddleware
+class ParamsRolMiddleware
 {
     /**
      * Handle an incoming request.
@@ -14,11 +14,11 @@ class ParamsInstructorMiddleware
      * @param  \Closure  $next
      * @return mixed
      */
-    public function handle($request, Closure $next)
+    public function handle($request, Closure $next, $key, $rol)
     {
-        $instructor = $request->route('instructor');
-        if ($instructor->rol->name != 'instructor') {
-            return response()->json(['error' => 'invalid_instructor'], 400);
+        $user = $request->route($key);
+        if ($user->rol->name != $rol) {
+            return response()->json(['error' => 'invalid_'.$key], 400);
         }
 
         return $next($request);
