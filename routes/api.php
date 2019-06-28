@@ -12,6 +12,9 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::middleware(['jwt.auth'])->group(function(){
-    Route::apiResource('users', 'UserController');
-});
+
+Route::get('users/roles', 'UserController@readRoles')->name('users.roles');
+Route::apiResource('users', 'UserController');
+Route::post('login', 'UserController@login')->name('users.login');
+Route::put('login', 'UserController@refresh')->name('users.refresh');
+
