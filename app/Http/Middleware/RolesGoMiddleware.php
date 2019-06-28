@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 
-class RolMiddleware
+class RolesGoMiddleware
 {
     /**
      * Handle an incoming request.
@@ -13,10 +13,10 @@ class RolMiddleware
      * @param  \Closure  $next
      * @return mixed
      */
-    public function handle($request, Closure $next, $rol)
+    public function handle($request, Closure $next, ...$roles)
     {
         $userOn = auth()->user();
-        if ($userOn->rol->name != $rol) {
+        if (!in_array($userOn->rol->name, $roles)) {
             return response()->json(['error' => 'invalid_credentials'], 401);
         }
 

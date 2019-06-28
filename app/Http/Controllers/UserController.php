@@ -16,7 +16,7 @@ class UserController extends Controller
 {
     public function __construct() {
         $this->middleware(
-            ['jwt.auth', 'only.rol:coordinador'], 
+            ['jwt.auth', "roles.go:coordinador"], 
             ['except' => ['login', 'store']]
         );
         $this->middleware('jwt.refresh')->only('refresh');
@@ -66,7 +66,7 @@ class UserController extends Controller
         $user =  [
             'name'=> $request->name,
             'email'=> $request->email,
-            'password'=> Hash::make($request->password),
+            'password'=> Hash::make($request->password)
         ];
         $user['rol_id'] = isset($userOn) && $userOn->rol_id == 1 ? $request->rol_id : 3;
 
@@ -114,12 +114,10 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        $valiData = [
+        $v = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email'
-        ];
-
-        $v = Validator::make($request->all(), $valiData);
+        ]);
         if ($v->fails())
         {
             return response()->json(['error' => $v->errors()], 400);
